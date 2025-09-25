@@ -10,6 +10,7 @@ class WebsocketService {
         this.listeners = new Set();
 
         this.shouldReconnect = true;
+        this.reconnectTimeoutID = null;
 
         this.messageQueue = [];
     }
@@ -30,6 +31,12 @@ class WebsocketService {
         /** Handle WebSocket open event */
         this.websocket.onopen = () => {
             console.log("[WEBSOCKET] Connected");
+
+            // Clear any existing reconnection attempts
+            if (this.reconnectTimeoutID) {
+                clearTimeout(this.reconnectTimeoutID);
+                this.reconnectTimeoutID = null;
+            }
 
             // Send any queued messages
             while (this.messageQueue.length > 0) {
@@ -58,12 +65,8 @@ class WebsocketService {
     }
 
     reconnect() {
-        const timeout = 1000;
-        console.log(`🔄 Reconnecting in ${timeout / 1000}s...`);
-
-        setTimeout(() => {
-            this.connect();
-        }, timeout);
+        console.log(`🔄 Reconnecting in 1s...`);
+        this.reconnectTimeoutID = setTimeout(() => this.connect(this.url), 1000);
     }
 
     disconnect() {

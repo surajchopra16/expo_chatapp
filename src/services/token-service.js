@@ -1,20 +1,18 @@
+import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
 /** Token key for storage */
 const TOKEN_KEY = "user_access_token";
 
-/** Determine if running in a browser environment */
-const isBrowser =
-    typeof window !== "undefined" &&
-    typeof window.document !== "undefined" &&
-    typeof localStorage !== "undefined";
+/** Check if the platform is web */
+const isWeb = Platform.OS === "web";
 
 /** Set the token in secure storage or localStorage */
 const setToken = (token) => {
     if (!token) return false;
 
     try {
-        if (isBrowser) localStorage.setItem(TOKEN_KEY, token);
+        if (isWeb) localStorage.setItem(TOKEN_KEY, token);
         else SecureStore.setItem(TOKEN_KEY, token);
         return true;
     } catch {
@@ -25,7 +23,7 @@ const setToken = (token) => {
 /** Get the token from secure storage or localStorage */
 const getToken = () => {
     try {
-        if (isBrowser) return localStorage.getItem(TOKEN_KEY);
+        if (isWeb) return localStorage.getItem(TOKEN_KEY);
         else return SecureStore.getItem(TOKEN_KEY);
     } catch {
         return null;
@@ -35,7 +33,7 @@ const getToken = () => {
 /** Delete the token from secure storage or localStorage */
 const deleteToken = async () => {
     try {
-        if (isBrowser) localStorage.removeItem(TOKEN_KEY);
+        if (isWeb) localStorage.removeItem(TOKEN_KEY);
         else await SecureStore.deleteItemAsync(TOKEN_KEY);
         return true;
     } catch {
