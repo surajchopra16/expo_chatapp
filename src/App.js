@@ -7,8 +7,8 @@ import Register from "./pages/Register";
 import GroupList from "./pages/GroupList";
 import Chat from "./pages/Chat";
 import { API_HOST } from "../config";
-import { tokenManager } from "./services/token-manager";
-import websocketManager from "./services/websocket-manager";
+import { tokenService } from "./services/token-service";
+import websocketService from "./services/websocket-service";
 import { useAddMessage } from "./state/MessagesContext";
 
 /** Stack Navigator */
@@ -19,7 +19,7 @@ const App = () => {
 
     /** Handle websocket connection and messages */
     useEffect(() => {
-        const accessToken = tokenManager.getToken();
+        const accessToken = tokenService.getToken();
         if (!accessToken) return;
 
         const handleMessages = (message) => {
@@ -28,14 +28,14 @@ const App = () => {
         };
 
         // Connect to WebSocket server
-        websocketManager.connect(`ws://${API_HOST}/api/messages/ws?token=${accessToken}`);
+        websocketService.connect(`ws://${API_HOST}/api/messages/ws?token=${accessToken}`);
 
         // Add listener for incoming messages
-        websocketManager.addListener(handleMessages);
+        websocketService.addListener(handleMessages);
 
         return () => {
-            websocketManager.removeListener(handleMessages);
-            websocketManager.disconnect();
+            websocketService.removeListener(handleMessages);
+            websocketService.disconnect();
         };
     }, []);
 

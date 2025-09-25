@@ -3,7 +3,7 @@
  * message sending, and listener management.
  */
 
-class WebsocketManager {
+class WebsocketService {
     constructor() {
         this.url = null;
         this.websocket = null;
@@ -92,6 +92,6 @@ class WebsocketManager {
     }
 }
 
-const websocketManager = new WebsocketManager();
+const websocketService = new WebsocketService();
 
-export default websocketManager;
+export default websocketService;

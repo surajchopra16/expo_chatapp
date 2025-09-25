@@ -43,4 +43,4 @@ const deleteToken = async () => {
     }
 };
 
-export const tokenManager = { setToken, getToken, deleteToken };
+export const tokenService = { setToken, getToken, deleteToken };

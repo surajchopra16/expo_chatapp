@@ -1,5 +1,5 @@
 import { API_HOST } from "../../config";
-import { tokenManager } from "../services/token-manager";
+import { tokenService } from "../services/token-service";
 
 /** Login user */
 const login = async (username, password) => {
@@ -14,7 +14,7 @@ const login = async (username, password) => {
         if (!response.ok) throw new Error(data.message || "Login failed");
 
         // Save the access token
-        const isSet = tokenManager.setToken(data.access_token);
+        const isSet = tokenService.setToken(data.access_token);
         if (!isSet) throw new Error("Failed to persist token");
 
         return {
@@ -41,7 +41,7 @@ const register = async (username, email, password) => {
         if (!response.ok) throw new Error(data.message || "Registration failed");
 
         // Save the access token
-        const isSet = tokenManager.setToken(data.access_token);
+        const isSet = tokenService.setToken(data.access_token);
         if (!isSet) throw new Error("Failed to persist token");
 
         return {

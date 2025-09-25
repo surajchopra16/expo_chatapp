@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FlatList, StatusBar, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../styles/GroupListStyles";
-import { tokenManager } from "../services/token-manager";
+import { tokenService } from "../services/token-service";
 import { useMessagesMap } from "../state/MessagesContext";
 
 const INITIAL_GROUPS = [
@@ -188,7 +188,7 @@ const GroupList = ({ navigation }) => {
     };
 
     useEffect(() => {
-        const access_token = tokenManager.getToken();
+        const access_token = tokenService.getToken();
         if (!access_token) navigation.navigate("Login");
     }, []);
 

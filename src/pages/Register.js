@@ -12,8 +12,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../styles/RegisterStyles";
 import { AuthAPI } from "../api/auth";
-import websocketManager from "../services/websocket-manager";
 import { API_HOST } from "../../config";
+import websocketService from "../services/websocket-service";
 
 const ShieldIcon = () => (
     <View style={styles.shieldIcon}>
@@ -54,7 +54,7 @@ const Register = ({ navigation }) => {
             const result = await AuthAPI.register(username.trim(), email.trim(), password);
 
             if (result.success) {
-                websocketManager.connect(
+                websocketService.connect(
                     `ws://${API_HOST}/api/messages/ws?token=${result.access_token}`
                 );
                 navigation.navigate("GroupList");
