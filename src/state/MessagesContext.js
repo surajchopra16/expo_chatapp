@@ -48,19 +48,8 @@ export function MessagesProvider({ children }) {
     );
 }
 
-export const useMessagesMap = () => {
+export const useMessage = () => {
     const ctx = useContext(MessagesContext);
-    if (!ctx) throw new Error("useMessagesMap must be used within MessagesProvider");
-    return ctx.messagesByGroup;
-};
-
-export const useAddMessage = () => {
-    const ctx = useContext(MessagesContext);
-    if (!ctx) throw new Error("useAddMessage must be used within MessagesProvider");
-    return ctx.addMessage;
-};
-
-export const useGroupMessages = (groupId) => {
-    const map = useMessagesMap();
-    return map[groupId] || [];
+    if (!ctx) throw new Error("useMessage must be used within MessagesProvider");
+    return { ...ctx };
 };

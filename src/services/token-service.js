@@ -41,4 +41,29 @@ const deleteToken = async () => {
     }
 };
 
-export const tokenService = { setToken, getToken, deleteToken };
+const setUser = (user) => {
+    if (!user) return false;
+    try {
+        if (isWeb) localStorage.setItem("user_data", JSON.stringify(user));
+        else SecureStore.setItem("user_data", JSON.stringify(user));
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+const getUser = () => {
+    try {
+        if (isWeb) {
+            const userData = localStorage.getItem("user_data");
+            return userData ? JSON.parse(userData) : null;
+        } else {
+            const userData = SecureStore.getItem("user_data");
+            return userData ? JSON.parse(userData) : null;
+        }
+    } catch {
+        return null;
+    }
+};
+
+export const tokenService = { setToken, getToken, deleteToken, setUser, getUser };

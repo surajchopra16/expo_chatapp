@@ -10,7 +10,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../styles/ChatStyles";
-
+import { useMessage } from "../state/MessagesContext";
+import { tokenService } from "../services/token-service";
+import websocketService from "../services/websocket-service";
 // Component for rendering a single message
 const MessageBubble = ({ message }) => (
     <View
@@ -25,13 +27,29 @@ const MessageBubble = ({ message }) => (
 );
 
 const Chat = ({ navigation, route }) => {
-    // Get group name from navigation parameters
-    const { groupName } = route.params || { groupName: "Secure Group" };
+    const { groupName, group_id } = route.params || { groupName: "Secure Group" };
 
-    // Initialize from route params (or empty); remove getGroupMessages
-    const [messages, setMessages] = useState(() => route.params?.messages ?? []);
+    const currentUser = tokenService.getUser();
+
+    const { messagesByGroup, addMessage } = useMessage();
+
+    // Initialize from messagesByGroup for the current group
+    const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
     const flatListRef = useRef(); // Ref for auto-scrolling
+    // Load messages for the current group
+    useEffect(() => {
+        if (messagesByGroup && group_id && messagesByGroup[group_id]) {
+            const groupMessages = messagesByGroup[group_id].map((msg, index) => ({
+                id: `${msg.group_id}_${index}`,
+                text: msg.message,
+                sender: msg.sender_username,
+                isCurrentUser: msg.sender_id === currentUser?._id,
+                timestamp: new Date(msg.created_at).toLocaleTimeString()
+            }));
+            setMessages(groupMessages);
+        }
+    }, [messagesByGroup, group_id]);
 
     // Scroll to the bottom when messages change
     useEffect(() => {
@@ -42,16 +60,22 @@ const Chat = ({ navigation, route }) => {
 
     const handleSendMessage = () => {
         if (!newMessage.trim()) return;
-        // Append locally; remove addMessage
-        const outgoing = {
-            id: Date.now().toString(),
-            text: newMessage.trim(),
-            sender: "You",
-            isCurrentUser: true,
-            timestamp: new Date().toLocaleTimeString()
-        };
-        setMessages((prev) => [...prev, outgoing]);
+        const messageToSend = newMessage.trim();
         setNewMessage("");
+
+        addMessage({
+            group_id: group_id,
+            group_name: groupName,
+            sender_id: currentUser?._id,
+            sender_username: currentUser?.username,
+            message: messageToSend,
+            created_at: Date.now()
+        });
+        // Send via WebSocket
+        websocketService.sendMessage({
+            group_id: group_id,
+            message: messageToSend
+        });
     };
 
     return (
@@ -68,9 +92,6 @@ const Chat = ({ navigation, route }) => {
                     <Text style={styles.onlineStatus}>online</Text>
                 </View>
                 <View style={styles.headerActions}>
-                    <TouchableOpacity style={styles.actionButton}>
-                        <Text style={styles.actionText}>📞</Text>
-                    </TouchableOpacity>
                     <TouchableOpacity style={styles.moreOptionsButton}>
                         <Text style={styles.moreOptionsText}>⋮</Text>
                     </TouchableOpacity>

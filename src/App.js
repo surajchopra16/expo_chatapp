@@ -9,18 +9,22 @@ import Chat from "./pages/Chat";
 import { API_HOST } from "../config";
 import { tokenService } from "./services/token-service";
 import websocketService from "./services/websocket-service";
-import { useAddMessage } from "./state/MessagesContext";
+import { useMessage } from "./state/MessagesContext";
+import { AuthAPI } from "./api/auth";
 
 /** Stack Navigator */
 const Stack = createStackNavigator();
 
 const App = () => {
-    const addMessage = useAddMessage();
+    const { addMessage } = useMessage();
 
     /** Handle websocket connection and messages */
     useEffect(() => {
         const accessToken = tokenService.getToken();
         if (!accessToken) return;
+
+        const userData = AuthAPI.fetchUser(accessToken);
+        if (!userData) return;
 
         const handleMessages = (message) => {
             console.log("Received message:", message);
