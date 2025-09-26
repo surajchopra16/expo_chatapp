@@ -48,6 +48,7 @@ class WebsocketService {
         /** Handle WebSocket message event */
         this.websocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            console.log("[WEBSOCKET] Message: ", data);
             this.listeners.forEach((listener) => listener(data));
         };
 
@@ -95,6 +96,7 @@ class WebsocketService {
     }
 }
 
+/** Instance of the WebSocket service */
 const websocketService = new WebsocketService();
 
 export default websocketService;

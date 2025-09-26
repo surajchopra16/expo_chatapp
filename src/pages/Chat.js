@@ -10,10 +10,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../styles/ChatStyles";
-import { useMessage } from "../state/MessagesContext";
+import { useMessagesContext } from "../state/MessagesContext";
 import { tokenService } from "../services/token-service";
-import websocketService from "../services/websocket-service";
-// Component for rendering a single message
+
 const MessageBubble = ({ message }) => (
     <View
         style={[
@@ -27,16 +26,17 @@ const MessageBubble = ({ message }) => (
 );
 
 const Chat = ({ navigation, route }) => {
-    const { groupName, group_id } = route.params || { groupName: "Secure Group" };
+    const { group_id, groupName } = route.params || { groupName: "Secure Group" };
+
+    const { messagesByGroup, sendMessage } = useMessagesContext();
+
+    const [messages, setMessages] = useState([]);
+    const [inputMessage, setInputMessage] = useState("");
 
     const currentUser = tokenService.getUser();
 
-    const { messagesByGroup, addMessage } = useMessage();
+    const flatListRef = useRef();
 
-    // Initialize from messagesByGroup for the current group
-    const [messages, setMessages] = useState([]);
-    const [newMessage, setNewMessage] = useState("");
-    const flatListRef = useRef(); // Ref for auto-scrolling
     // Load messages for the current group
     useEffect(() => {
         if (messagesByGroup && group_id && messagesByGroup[group_id]) {
@@ -59,22 +59,18 @@ const Chat = ({ navigation, route }) => {
     }, [messages]);
 
     const handleSendMessage = () => {
-        if (!newMessage.trim()) return;
-        const messageToSend = newMessage.trim();
-        setNewMessage("");
+        if (!inputMessage.trim()) return;
 
-        addMessage({
+        const message = inputMessage.trim();
+        setInputMessage("");
+
+        sendMessage({
             group_id: group_id,
             group_name: groupName,
             sender_id: currentUser?._id,
             sender_username: currentUser?.username,
-            message: messageToSend,
+            message: message,
             created_at: Date.now()
-        });
-        // Send via WebSocket
-        websocketService.sendMessage({
-            group_id: group_id,
-            message: messageToSend
         });
     };
 
@@ -87,10 +83,12 @@ const Chat = ({ navigation, route }) => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Text style={styles.backButtonText}>{"<"}</Text>
                 </TouchableOpacity>
+
                 <View style={styles.titleContainer}>
                     <Text style={styles.groupTitle}>{groupName}</Text>
                     <Text style={styles.onlineStatus}>online</Text>
                 </View>
+
                 <View style={styles.headerActions}>
                     <TouchableOpacity style={styles.moreOptionsButton}>
                         <Text style={styles.moreOptionsText}>⋮</Text>
@@ -103,7 +101,6 @@ const Chat = ({ navigation, route }) => {
                 ref={flatListRef}
                 data={messages}
                 renderItem={({ item }) => <MessageBubble message={item} />}
-                // Safe keyExtractor if items lack id
                 keyExtractor={(item, index) => item.id ?? String(index)}
                 contentContainerStyle={styles.messageListContent}
                 onContentSizeChange={() =>
@@ -127,14 +124,15 @@ const Chat = ({ navigation, route }) => {
                     style={styles.messageInput}
                     placeholder="Type a secure message..."
                     placeholderTextColor="#8A8A8A"
-                    value={newMessage}
-                    onChangeText={setNewMessage}
+                    value={inputMessage}
+                    onChangeText={setInputMessage}
                     multiline
                 />
+
                 <TouchableOpacity
                     style={styles.sendButton}
                     onPress={handleSendMessage}
-                    disabled={!newMessage.trim()}>
+                    disabled={!inputMessage.trim()}>
                     <Text style={styles.sendButtonText}>Send</Text>
                 </TouchableOpacity>
             </KeyboardAvoidingView>

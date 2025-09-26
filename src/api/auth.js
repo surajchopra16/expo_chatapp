@@ -55,8 +55,7 @@ const register = async (username, email, password) => {
     }
 };
 
-// user profile
-
+/** Fetch current user */
 const fetchUser = async (token) => {
     try {
         const response = await fetch(`http://${API_HOST}/api/users/me`, {
@@ -68,14 +67,14 @@ const fetchUser = async (token) => {
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Failed to fetch user");
-        
+
         const isSet = tokenService.setUser(data);
         if (!isSet) throw new Error("Failed to persist user data");
-        
+
         return { success: true, user: data };
     } catch (err) {
         return { success: false, error: err.message || "Network error occurred" };
     }
 };
 
-export const AuthAPI = { login, register , fetchUser };
+export const AuthAPI = { login, register, fetchUser };

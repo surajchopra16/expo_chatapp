@@ -1,11 +1,11 @@
 import { Platform } from "react-native";
 import AsyncStorageRN from "@react-native-async-storage/async-storage";
 
-/** Check if the platform is web */
-const isWeb = Platform.OS === "web";
-
 /** Storage key */
 const STORAGE_KEY = "messages_by_group";
+
+/** Check if the platform is web */
+const isWeb = Platform.OS === "web";
 
 /** Save messages */
 const saveMessages = async (messages) => {

@@ -3,9 +3,7 @@ import { FlatList, StatusBar, Text, TextInput, TouchableOpacity, View } from "re
 import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../styles/GroupListStyles";
 import { tokenService } from "../services/token-service";
-import { useMessage } from "../state/MessagesContext";
 
-// Component for rendering each item in the list
 const GroupItem = ({ item, onPress }) => {
     const lastMsg = item.messages?.[item.messages.length - 1];
     return (
@@ -13,10 +11,12 @@ const GroupItem = ({ item, onPress }) => {
             <View style={styles.groupIcon}>
                 <Text style={styles.groupIconText}>{item.name.charAt(0)}</Text>
             </View>
+
             <View style={styles.groupTextContainer}>
                 <Text style={styles.groupName}>{item.name}</Text>
                 <Text style={styles.lastMessage}>{lastMsg?.text ?? ""}</Text>
             </View>
+
             <View style={styles.groupMetaContainer}>
                 <Text style={styles.timestamp}>{lastMsg?.timestamp ?? ""}</Text>
                 {item.unreadCount > 0 && (

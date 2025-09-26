@@ -3,6 +3,7 @@ import * as SecureStore from "expo-secure-store";
 
 /** Token key for storage */
 const TOKEN_KEY = "user_access_token";
+const USER_DATA_KEY = "user_data";
 
 /** Check if the platform is web */
 const isWeb = Platform.OS === "web";
@@ -41,24 +42,27 @@ const deleteToken = async () => {
     }
 };
 
+/** Set user data in secure storage or localStorage */
 const setUser = (user) => {
     if (!user) return false;
+
     try {
-        if (isWeb) localStorage.setItem("user_data", JSON.stringify(user));
-        else SecureStore.setItem("user_data", JSON.stringify(user));
+        if (isWeb) localStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
+        else SecureStore.setItem(USER_DATA_KEY, JSON.stringify(user));
         return true;
     } catch {
         return false;
     }
 };
 
+/** Get user data from secure storage or localStorage */
 const getUser = () => {
     try {
         if (isWeb) {
-            const userData = localStorage.getItem("user_data");
+            const userData = localStorage.getItem(USER_DATA_KEY);
             return userData ? JSON.parse(userData) : null;
         } else {
-            const userData = SecureStore.getItem("user_data");
+            const userData = SecureStore.getItem(USER_DATA_KEY);
             return userData ? JSON.parse(userData) : null;
         }
     } catch {

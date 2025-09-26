@@ -3,8 +3,7 @@ import { Alert, StatusBar, Text, TextInput, TouchableOpacity, View } from "react
 import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../styles/LoginStyles";
 import { AuthAPI } from "../api/auth";
-import { API_HOST } from "../../config";
-import websocketService from "../services/websocket-service";
+import { useMessagesContext } from "../state/MessagesContext";
 
 const ShieldIcon = () => (
     <View style={styles.shieldIcon}>
@@ -13,6 +12,8 @@ const ShieldIcon = () => (
 );
 
 const Login = ({ navigation }) => {
+    const { connectWebsocket } = useMessagesContext();
+
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
@@ -29,9 +30,7 @@ const Login = ({ navigation }) => {
             const result = await AuthAPI.login(username.trim(), password);
 
             if (result.success) {
-                websocketService.connect(
-                    `ws://${API_HOST}/api/messages/ws?token=${result.access_token}`
-                );
+                connectWebsocket(result.access_token);
                 navigation.navigate("GroupList");
             } else {
                 Alert.alert("Login Failed", result.error);
