@@ -3,6 +3,7 @@ import { FlatList, StatusBar, Text, TextInput, TouchableOpacity, View } from "re
 import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../styles/GroupListStyles";
 import { tokenService } from "../services/token-service";
+import { AuthAPI } from "../api/auth";
 
 const GroupItem = ({ item, onPress }) => {
     const lastMsg = item.messages?.[item.messages.length - 1];
@@ -29,24 +30,6 @@ const GroupItem = ({ item, onPress }) => {
     );
 };
 
-const fetchUserGroups = async () => {
-    try {
-        const response = await fetch("http://127.0.0.1:8000/api/users/user-groups", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${tokenService.getToken()}`
-            }
-        });
-        const data = await response.json();
-
-        return data.groups || [];
-    } catch (error) {
-        console.error("Error fetching user groups:", error);
-        return [];
-    }
-};
-
 const GroupList = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [groups, setGroups] = useState([]);
@@ -70,7 +53,10 @@ const GroupList = ({ navigation }) => {
         // Fetch groups data
         const loadGroups = async () => {
             setLoading(true);
-            const groupsData = await fetchUserGroups();
+            const groupsData = await AuthAPI.fetchUserGroups();
+            groupsData.map((group) => {
+                tokenService.setSymmetricKey(group["_id"], group["symmetric_key"]);
+            });
             setGroups(groupsData);
             setFilteredGroups(groupsData);
             setLoading(false);

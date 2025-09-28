@@ -77,4 +77,23 @@ const fetchUser = async (token) => {
     }
 };
 
-export const AuthAPI = { login, register, fetchUser };
+/** Fetch user groups */
+const fetchUserGroups = async () => {
+    try {
+        const response = await fetch(`http://${API_HOST}/api/users/user-groups`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${tokenService.getToken()}`
+            }
+        });
+        const data = await response.json();
+
+        return data.groups || [];
+    } catch (error) {
+        console.error("Error fetching user groups:", error);
+        return [];
+    }
+};
+
+export const AuthAPI = { login, register, fetchUser, fetchUserGroups };

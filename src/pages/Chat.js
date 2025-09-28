@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../styles/ChatStyles";
 import { useMessagesContext } from "../state/MessagesContext";
 import { tokenService } from "../services/token-service";
+import { encryptMessage } from "../services/e2ee";
 
 const MessageBubble = ({ message }) => (
     <View
@@ -64,12 +65,18 @@ const Chat = ({ navigation, route }) => {
         const message = inputMessage.trim();
         setInputMessage("");
 
+        const symmetricKey = tokenService.getSymmetricKey(group_id);
+        if (!symmetricKey) {
+            console.error("No symmetric key found for group:", group_id);
+            return;
+        }
+
         sendMessage({
             group_id: group_id,
             group_name: groupName,
             sender_id: currentUser?._id,
             sender_username: currentUser?.username,
-            message: message,
+            message: encryptMessage(symmetricKey, message),
             created_at: Date.now()
         });
     };

@@ -70,4 +70,33 @@ const getUser = () => {
     }
 };
 
-export const tokenService = { setToken, getToken, deleteToken, setUser, getUser };
+/** Set symmetric key for a group */
+const setSymmetricKey = (groupId, symmetricKey) => {
+    try {
+        if (isWeb) localStorage.setItem(`symmetric_key_${groupId}`, symmetricKey);
+        else SecureStore.setItem(`symmetric_key_${groupId}`, symmetricKey);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+/** Get symmetric key for a group */
+const getSymmetricKey = (groupId) => {
+    try {
+        if (isWeb) return localStorage.getItem(`symmetric_key_${groupId}`);
+        else return SecureStore.getItem(`symmetric_key_${groupId}`);
+    } catch {
+        return null;
+    }
+};
+
+export const tokenService = {
+    setToken,
+    getToken,
+    deleteToken,
+    setUser,
+    getUser,
+    setSymmetricKey,
+    getSymmetricKey
+};

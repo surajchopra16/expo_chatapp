@@ -3,6 +3,7 @@ import { messagesService } from "../services/messages-service";
 import websocketService from "../services/websocket-service";
 import { API_HOST } from "../../config";
 import { tokenService } from "../services/token-service";
+import { decryptMessage } from "../services/e2ee";
 
 /** Messages Context */
 const MessagesContext = createContext(null);
@@ -57,6 +58,14 @@ export function MessagesProvider({ children }) {
     }, [messagesByGroup]);
 
     const addMessage = (message) => {
+        const symmetricKey = tokenService.getSymmetricKey(message["group_id"]);
+        if (!symmetricKey) {
+            console.error("No symmetric key found for group:", group_id);
+            return;
+        }
+
+        message["message"] = decryptMessage(symmetricKey, message["message"]);
+
         setMessagesByGroup((prev) => {
             const list = [...(prev[message["group_id"]] || []), message];
             list.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -65,11 +74,11 @@ export function MessagesProvider({ children }) {
     };
 
     const sendMessage = (message) => {
-        addMessage(message);
         websocketService.sendMessage({
             group_id: message["group_id"],
             message: message["message"]
         });
+        addMessage(message);
     };
 
     return (

@@ -8,13 +8,17 @@ import GroupList from "./pages/GroupList";
 import Chat from "./pages/Chat";
 
 import { AuthAPI } from "./api/auth";
+import { tokenService } from "./services/token-service";
 
 /** Stack Navigator */
 const Stack = createStackNavigator();
 
 const App = () => {
     useEffect(() => {
-        AuthAPI.fetchUser();
+        const access_token = tokenService.getToken();
+        if (access_token) return;
+
+        AuthAPI.fetchUser(access_token).then();
     }, []);
 
     return (
