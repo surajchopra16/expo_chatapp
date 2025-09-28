@@ -9,11 +9,14 @@ import Chat from "./pages/Chat";
 
 import { AuthAPI } from "./api/auth";
 import { tokenService } from "./services/token-service";
+import { usePreventScreenCapture } from "expo-screen-capture";
 
 /** Stack Navigator */
 const Stack = createStackNavigator();
 
 const App = () => {
+    usePreventScreenCapture();
+
     useEffect(() => {
         const access_token = tokenService.getToken();
         if (access_token) return;
