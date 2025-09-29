@@ -1,4 +1,4 @@
-import CryptoJS from "crypto-js";
+import CryptoJS from "react-native-crypto-js";
 
 // Encrypt message (IV embedded)
 export function encryptMessage(base64Key, message) {

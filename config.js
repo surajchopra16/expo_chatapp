@@ -1,1 +1,1 @@
-export const API_HOST = "127.0.0.1:8000";
+export const API_HOST = "172.16.94.221:8000";
